@@ -1,0 +1,12 @@
+{
+	"data": {
+		"raw_input_folder": "../data/raw/",
+		"messages_file": "disaster_messages.csv",
+		"categories_file": "disaster_categories.csv"
+	},
+	"database": {
+		"output_folder": "../data/output/",
+		"db_name": "disaster.db",
+		"messages_table_name": "messages"
+	}
+}
