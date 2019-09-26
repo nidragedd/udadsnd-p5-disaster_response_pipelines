@@ -7,9 +7,14 @@ Python script to call to launch preprocessing steps:
 
 @author: nidragedd
 """
+import sys
+import os
 import logging
 import pandas as pd
 from sqlalchemy import create_engine
+
+# This hack is mandatory in order to be able to import modules from sibling packages
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir))
 
 from src.config import utils
 from src.config.pgconf import ProgramConfiguration

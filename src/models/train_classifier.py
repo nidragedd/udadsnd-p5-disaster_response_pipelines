@@ -31,6 +31,12 @@ from sklearn.multiclass import OneVsRestClassifier
 # Model evaluation
 from sklearn.metrics import classification_report, f1_score, make_scorer, precision_score, recall_score
 
+import sys
+import os
+
+# This hack is mandatory in order to be able to import modules from sibling packages
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir))
+
 from src.config import utils
 from src.config.pgconf import ProgramConfiguration
 from src.models import transformers
