@@ -8,5 +8,31 @@
 		"output_folder": "../data/output/",
 		"db_name": "disaster.db",
 		"messages_table_name": "messages"
+	},
+	"modeling": {
+		"output_folder": "../data/output/",
+		"available_models": ["Logistic Regression", "Random Forest"],
+		"model_to_build": "Logistic Regression",
+		"tune_model": false,
+		"tuning_parameters": {
+			"tf-idf": {
+				"default_values": {
+					"ngram_range": "(1, 2)",
+					"max_df": 0.7,
+					"max_features": 5000,
+					"norm": "None",
+					"binary": true,
+					"use_idf": false
+				},
+				"gridsearch_values": {
+					"ngram_range": ["(1, 1)", "(1, 2)"],
+					"max_df": [0.5, 0.7, 1.0],
+					"max_features": [3000, 5000],
+					"norm": ["None", "l1", "l2"],
+					"binary": [true, false],
+					"use_idf": [true, false]
+				}
+			}
+		}
 	}
 }

@@ -13,12 +13,6 @@ from src import app
 from src.config import utils
 from src.config.pgconf import ProgramConfiguration
 from src.data import dataloader
-#from nltk.stem import WordNetLemmatizer
-#from nltk.tokenize import word_tokenize
-
-#from sklearn.externals import joblib
-
-
 
 # def tokenize(text):
 #     tokens = word_tokenize(text)

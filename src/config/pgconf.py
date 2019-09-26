@@ -73,8 +73,68 @@ class ProgramConfiguration(object):
         output_folder = self._get_path_to_folder(self._config['database']['output_folder'])
         return os.path.join(output_folder, self._config['database']['db_name'])
 
+    def get_output_model_file(self):
+        """
+        :return: (string) path to output directory where models are dumped (as configured in the external JSON
+        configuration file)
+        """
+        output_folder = self._get_path_to_folder(self._config['modeling']['output_folder'])
+        return os.path.join(output_folder, "{}.joblib".format(self.get_chosen_model_name().lower().replace(' ', '-')))
+
     def get_db_table_name(self):
         """
         :return: (string) database main table name as configured in the external JSON configuration file
         """
         return self._config['database']['messages_table_name']
+
+    def is_model_tuning_active(self):
+        """
+        :return: True if the model should be trained with GridSearch and config parameters specified in file
+        """
+        return self._config['modeling']['tune_model']
+
+    def get_chosen_model_name(self):
+        """
+        :return: (string) name of the model to build. Should be one among available models
+        """
+        available_models = ["Logistic Regression", "Random Forest"]
+        model = self._config['modeling']['model_to_build']
+        if model in available_models:
+            return model
+        else:
+            raise Exception("Model '{}' is not valid. Must be one among {}".format(model, available_models))
+
+    def _get_tuning_parameters(self):
+        """
+        Internal method to retrieve the model tuning parameters within JSON configuration file
+        :return: dict of tuning parameters as specified in the file
+        """
+        return self._config['modeling']['tuning_parameters']
+
+    def handle_tfidf_tuning_param_grid(self, param_grid):
+        """
+        Add to a given parameter grid the parameters to tune the TF-IDF vectorizer. Values can be a range of values if
+        tuning is active (so GridSearch will be performed) or default ones.
+        WARNING: this method will mutate the given dict parameter
+        :param param_grid: (dict) this method will mutate this object by appending it some keys/values
+        :return: key/values dict with parameters set for the TF-IDF vectorizer
+        """
+        vals = "gridsearch_values" if self.is_model_tuning_active() else "default_values"
+        tuning_params = self._get_tuning_parameters()["tf-idf"][vals]
+
+        # Handle easy parameters, just assign values that could be single one value or arrays of numeric or boolean
+        for i in ['max_df', 'max_features', 'binary', 'use_idf']:
+            param_grid['features__text__{}'.format(i)] = tuning_params[i]
+
+        # Handling other parameters is different depending on whether we will tune the model or not
+        if self.is_model_tuning_active():
+            param_grid['features__text__ngram_range'] = eval(' ,'.join([p for p in tuning_params["ngram_range"]]))
+            param_grid['features__text__norm'] = [p for p in tuning_params["norm"] if p != 'None']
+            if 'None' in tuning_params["norm"]:
+                param_grid['features__text__norm'].append(None)
+        else:
+            param_grid['features__text__ngram_range'] = eval(tuning_params["ngram_range"])
+            if tuning_params["norm"] == 'None':
+                param_grid['features__text__norm'] = None
+            else:
+                param_grid['features__text__norm'] = tuning_params["norm"]
