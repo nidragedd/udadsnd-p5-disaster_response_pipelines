@@ -8,6 +8,10 @@ Steps:
 @author: nidragedd
 """
 import logging
+import sys
+import os
+# This hack is mandatory in order to be able to import modules from sibling packages
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
 
 from src import app
 from src.config import utils
