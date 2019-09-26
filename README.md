@@ -20,8 +20,8 @@ the messages to an appropriate disaster relief agency.
     * provide some data visualizations
     * use our trained and saved model to classify new messages for 36 categories.
 
-This webapp will be used by an emergency worker: he gives a new message and gets classification results in several
-categories.
+In the given use case, this webapp is used by an emergency worker: he gives a new message and gets classification results
+in several categories.
 
 ---
 ## 2. ABOUT THE DATA
@@ -36,7 +36,8 @@ often see the same value it will obviously 'learn' that and tend to predict this
 
 #### Which performance metric?
 If we choose `accuracy` as the performance metric to check whether we classify well or not, a dummy classifier that always
-predict the most frequent class will have a good score but in the end we will have built a very poor model.  
+predict the most frequent class will have a good score but in the end we will have built a very poor model.
+  
 When data are imbalanced we can use other metrics such as:
 * ***Precision:*** among all the positive predictions made by the model, we count how many of them were actually positive
 in the train/validation/test dataset. This is a ratio and the higher the better because it means that our model is very
@@ -48,7 +49,7 @@ precise (when it says it is positive, it is correct) but could still miss a lot 
 good neither. Recall is also a ratio and the higher the better (in this case there are few _"False Negatives"_).
 
 Depending on the use case, we might want to focus on `Recall` rather than `Precision` or vice-versa.  
-For example in medical domain, when algorithm says the person has/does not have cancer, we want this information to be as
+> For example in medical domain, when algorithm says the person has/does not have cancer, we want this information to be as
 accurate as possible (you can easily imagine the impacts when this is wrong), this is the _Precision_.  
 But we also want to avoid saying someone that he does not have cancer whereas he actually has one (this is the worst 
 case scenario). So perhaps in this case we want to focus more on _Recall_ (ensure we catch all of them) even if it means
@@ -58,11 +59,25 @@ If we do not want to choose between _Precision_ or _Recall_ because both are kin
 use the ***F1-Score*** metric which is the harmonic mean of both:  
 F1 score = 2x ((Precision x Recall)/(Precision + Recall))
 
-**This will be the selected metric in our case.**
+**F1-Score will be the selected metric in our case.**
 
-Here are few interesting readings about performance metrics in classification:
+#### Macro, micro, weighted?
+Choosing F1-Score is not enough when working on multiclass outputs because we would like to know how 'accurate' we are
+over all categories. How can we evaluate that?  
+As explained in this [towardsdatascience post](https://towardsdatascience.com/journey-to-the-center-of-multi-label-classification-384c40229bff)
+we have to average our results made for all categories and for that there are 2 options:
+* the micro-averaging way
+* or the macro-averaging one.
+In this project, we use the micro way as "it is a useful measure when your dataset varies in size" (and remember that our classes/targets are imbalanced).  
+Another interesting source about the difference and what to choose is available [here](https://datascience.stackexchange.com/questions/15989/micro-average-vs-macro-average-performance-in-a-multiclass-classification-settin)
+where it is written that _"In a multi-class classification setup, micro-average is preferable if you suspect there might be class imbalance (i.e you may have many more examples of one class than of other classes)"_.
+
+
+##### Readings
+Here are few interesting readings on towardsdatascience about performance metrics in classification:
 * [Accuracy, Recall, Precision, F-Score & Specificity, which to optimize on?](https://towardsdatascience.com/accuracy-recall-precision-f-score-specificity-which-to-optimize-on-867d3f11124)
 * [How data scientists can convince doctors that AI works](https://towardsdatascience.com/how-data-scientists-can-convince-doctors-that-ai-works-c27121432ccd)
+* [Multi-class metrics made simple](https://towardsdatascience.com/multi-class-metrics-made-simple-part-ii-the-f1-score-ebe8b2c2ca1)
 
 
 #### Ensure that we have enough data to train on
@@ -83,8 +98,50 @@ lead us to a lot of data loss depending on how huge is the gap between classes.
 This is algo a good reading about metrics and resampling: [Dealing with Imbalanced Data](https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18)
 
 ### Modeling
-As it is a supervised classification problem I will take the **Logistic Regression* algorithm as a baseline and it will be
-compared to tree based algorithms which are known to handle pretty well imbalanced data.
+We will build a supervised NLP model with multilabel classification (and not multiclass!).
+What is the difference? Well, "in multi-class problems the classes are mutually exclusive, whereas for multi-label 
+problems each label represents a different classification task" ([source](https://towardsdatascience.com/journey-to-the-center-of-multi-label-classification-384c40229bff)).
+
+#### Models
+As it is a supervised classification problem I will take the **Logistic Regression** algorithm as a baseline. If I have 
+enough time to do it,this baseline will be compared to tree based algorithms which are known to handle pretty well 
+imbalanced data (such as _RandomForest_ for example).
+
+As per scikit-learn documentation, for Logistic Regression: _"In the multiclass case, the training algorithm uses the 
+one-vs-rest (OvR) scheme". So the Logistic Regression classifier will be wrapped by a [OneVsRestClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) which 
+consists in "fitting one classifier per class. For each classifier, the class is fitted against all the other classes"._
+
+#### Feature Engineering
+For the text transformation, there are easy tricks such as putting everything in lower case, remove digits and stop words, etc. Then we have the [choice between _Stemming_ or _Lemmatization_](https://www.datacamp.com/community/tutorials/stemming-lemmatization-python):  
+* "Stemming and Lemmatization helps us to achieve the root forms (sometimes called synonyms in search context) of inflected (derived) words."
+* "Stemming is different to Lemmatization in the approach it uses to produce root forms of words and the word produced. Stemming a word or sentence may result in words that are not actual words. Stems are created by removing the suffixes or prefixes used with a word."
+"Lemmatization, unlike Stemming, reduces the inflected words properly ensuring that the root word belongs to the language. In Lemmatization root word is called Lemma. A lemma is the canonical form, dictionary form, or citation form of a set of words."
+
+
+***The main transformations that are applied to the text are: TF-IDF vectorization on a lemmatized text.***
+
+For more details, please refer to this [notebook](notebooks/2-ML_pipeline_preparation.ipynb) that offers a walk through this part of the process.
+
+#### F1-Score Results
+First try (arbitrary chosen parameters for TF-IDF vectorization)
+log reg: Precision: 0.6726, Recall: 0.5169, F1-Score: 0.5845
+rf: Precision: 0.7683, Recall: 0.3281, F1-Score: 0.4599
+
+With new features but no TF-IDF tuning
+log reg: Precision: 0.6857, Recall: 0.5206, F1-Score: 0.5919
+rf: Precision: 0.7683, Recall: 0.3281, F1-Score: 0.4599
+
+With TF-IDF tuning
+log reg: Precision: 0.7359, Recall: 0.5344, F1-Score: 0.6191
+rf: Precision: 0.7640, Recall: 0.3308, F1-Score: 0.4616
+
+
+#### Further improvements
+Here are the things that can be done to go further on this project and improve it:
+* Further tuning on ***max_df*** and ***max_features*** parameters of the ***TF-IDF vectorization***
+* Tune RandomForest parameters
+* Add new features based on text extractions
+* Undersampling/Oversampling to have a better management of classes with few samples
 
 ---
 ## 3. WEBAPP SCREENSHOTS
@@ -92,9 +149,20 @@ compared to tree based algorithms which are known to handle pretty well imbalanc
 **TODO**
 
 
+---
+## 4. CONFIGURATION
+This project is based on 2 configuration JSON files:
+* config.json
+* logging.json
+
+A default (and working) version of those files are provided under the `config` directory in project's root directory.  
+The `logging.json` file is just an external configuration for logging module parameters(loggers, parsers, file handlers).  
+The `config.json` file is an homemade file where all parameters are provided. Please refer to this [file](config/CONFIG.md)
+for more details about it.
+
 
 ---
-## 4. TECHNICAL PART
+## 5. TECHNICAL PART
 ### Dependencies & Installation - Create your CONDA virtual environment
 Easiest way is to create a virtual environment through **[conda](https://docs.conda.io/en/latest/)**
 and the given `environment.yml` file by running this command in a terminal (if you have conda, obviously):
@@ -109,16 +177,15 @@ Basically, this project requires **Python 3.7** in addition to common datascienc
 [sklearn](https://scikit-learn.org/stable/), [matplotlib](https://matplotlib.org/), 
 [seaborn](https://seaborn.pydata.org/) and so on).
 
-For modeling, this project is using **TODO**.  
+For modeling, this project is using scikit-learn [LogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)
+and [RandomForest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) that are configured and tuned over
+[pipelines](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) (see also [this](https://scikit-learn.org/stable/modules/compose.html)).  
 
 There are those additional packages in order to expose our work within a webapp:
-**TODO !!!**
-* [Flask](https://radimrehurek.com/gensim/): used for topic modeling
-* [plotly](https://pypi.org/project/wordcloud/): used to generate some tag clouds
+* [Flask](https://palletsprojects.com/p/flask/): used as web application framework/engine to run the app over HTTP
+* [plotly](https://plot.ly/): used to generate some pretty visualizations displayed in webapp
+* [spacy](https://spacy.io/): used for NLP tasks
 
-
-
----
 ### Directory & code structure
 Here is the structure of the project:
 ```
@@ -132,7 +199,8 @@ Here is the structure of the project:
             |__ config  (scripts called to actually configure the program)
             |__ models  (python scripts used to build, train and save a ML model)
             |__ preprocessing  (python scripts used to preprocess the raw data)
-            |__ webapp  (python scripts and HTML templates used to render the webapp)
+            |__ templates  (HTML templates to serve through Flask, this is the 'view' part)
+            |__ webapp  (python files corresponding to the webapp: this is the 'controller' part)
 ```
 
 ### Run the app on your local computer
@@ -140,11 +208,11 @@ Here is the structure of the project:
 1. Run the following commands in the project's root directory to set up your database and model.
 
     - To run ETL pipeline that cleans data and stores in database
-        `python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/DisasterResponse.db`
+        `python src/preprocessing/process_data.py -c ./config/config.json -l ./config/logging-console.json`
     - To run ML pipeline that trains classifier and saves
-        `python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl`
+        `python src/models/train_classifier.py -c ./config/config.json -l ./config/logging-console.json`
 
-2. Run the following command in the app's directory to run your web app.
-    `python run.py`
+2. Run the following command in the project's root directory to run the web app.
+    `python src/app.py -c ./config/config.json -l ./config/logging-console.json`
 
 3. Go to http://0.0.0.0:3001/
