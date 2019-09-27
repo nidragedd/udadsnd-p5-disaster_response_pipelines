@@ -73,13 +73,25 @@ class ProgramConfiguration(object):
         output_folder = self._get_path_to_folder(self._config['database']['output_folder'])
         return os.path.join(output_folder, self._config['database']['db_name'])
 
-    def get_output_model_file(self):
+    def _build_output_model_filename(self, name):
         """
-        :return: (string) path to output directory where models are dumped (as configured in the external JSON
-        configuration file)
+        :param name: (string) pattern name for the output file
+        :return: (string) full path to output file to save either the model or the classes
         """
         output_folder = self._get_path_to_folder(self._config['modeling']['output_folder'])
-        return os.path.join(output_folder, "{}.joblib".format(self.get_chosen_model_name().lower().replace(' ', '-')))
+        return os.path.join(output_folder, name.format(self.get_chosen_model_name().lower().replace(' ', '-')))
+
+    def get_output_model_file(self):
+        """
+        :return: (string) full path to output file to dump model (as configured in the external JSON configuration file)
+        """
+        return self._build_output_model_filename("{}.joblib")
+
+    def get_output_model_classes_file(self):
+        """
+        :return: (string) full path to output file to dump classes (as configured in the external JSON configuration file)
+        """
+        return self._build_output_model_filename("classes_{}.joblib")
 
     def get_db_table_name(self):
         """

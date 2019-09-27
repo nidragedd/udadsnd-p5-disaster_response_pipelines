@@ -39,6 +39,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pard
 
 from src.config import utils
 from src.config.pgconf import ProgramConfiguration
+from src.data import dataloader
 from src.models import transformers
 
 
@@ -58,7 +59,7 @@ def load_data():
 
             X = df['message']
             Y = df.drop(['id', 'message', 'genre'], axis=1)
-            return X, Y
+            return X, Y, Y.columns.to_list()
         else:
             raise Exception("DB file '{}' is empty".format(db_file))
     else:
@@ -134,33 +135,26 @@ def evaluate_model(model_name, pipeline, x_test, y_test):
     logger.info("Classification report below:\n{}".format(classification_report(y_test, y_pred)))
 
 
-def save_model(model_name, model):
+def save_model(model_name, model, classes):
     """
     Save the model locally
     :param model_name: (string) just for display purpose
     :param model: (sklearn object) the model to dump
+    :param classes: (array) list of classes
     """
     model_save_file = utils.pgconf.get_output_model_file()
+    classes_file = utils.pgconf.get_output_model_classes_file()
     logger.info("Saving {} model to '{}'".format(model_name, model_save_file))
     joblib.dump(model, model_save_file)
+    joblib.dump(classes, classes_file)
     logger.info("Model saved!")
-
-
-def load_model():
-    """
-    Load the saved model from disk
-    :return: (sklearn object) loaded model
-    """
-    model_save_file = utils.pgconf.get_output_model_file()
-    logger.info("Loading model from '{}'".format(model_save_file))
-    return joblib.load(model_save_file)
 
 
 def train():
     """
     Training process: load data, build a model, train, evaluate then save on disk
     """
-    X, Y = load_data()
+    X, Y, classes = load_data()
     x_train_val, x_test, y_train_val, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
     model_name = utils.pgconf.get_chosen_model_name()
@@ -172,10 +166,10 @@ def train():
 
     evaluate_model(model_name, model, x_test, y_test)
 
-    save_model(model_name, model)
+    save_model(model_name, model, classes)
 
     # Coherence check
-    saved_model = load_model()
+    saved_model, classes = dataloader.load_model_and_classes()
     evaluate_model('{} loaded from disk'.format(model_name), saved_model, x_test, y_test)
 
 
