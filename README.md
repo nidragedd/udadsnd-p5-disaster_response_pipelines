@@ -1,4 +1,14 @@
 # Udacity DataScience nanodegree project - Disaster Response Pipeline Project
+## Table of contents
+* [1. Context - Objectives](#1-context---objectives)
+* [2. About the data](#2-about-the-data)
+* [3. Modeling](#3-modeling)
+* [4. Webapp overview](#4-webapp-screenshots)
+* [5. Configuration](#5-configuration)
+* [6. Technical section](#6-technical-part)
+
+---
+
 ## 1. CONTEXT - OBJECTIVES
 ### Context
 This project is only for educational purposes. I did it while I was following the Udacity `DataScience nanodegree`.  
@@ -11,14 +21,14 @@ such as using key word searches to provide trivial results.
 In this project our goal is to analyze thousands of real messages provided by [Figure 8](https://www.figure-eight.com/),
 sent during natural disasters either via social media or directly to disaster response organizations.  
 We have several steps to follow:  
-1.**Build an ETL pipeline** that processes message and category data from csv files and load them into a SQLite database
+1.**Build an ETL pipeline** that processes message and category data from csv files and load them into a SQLite database  
 2. **Build a Machine Learning pipeline** that will then read from SQLite DB to create and save a multi-output supervised 
 learning model (yes, this is multi-class classification problem). Goal is to categorize these events so that we can send
-the messages to an appropriate disaster relief agency.
+the messages to an appropriate disaster relief agency.  
 3. **Build a webapp** that will:
-    * be able to first launch both pipelines in order to populate everything that needs to be
-    * provide some data visualizations
-    * use our trained and saved model to classify new messages for 36 categories.
+* be able to first launch both pipelines in order to populate everything that needs to be
+* provide some data visualizations
+* use our trained and saved model to classify new messages for 36 categories.
 
 In the given use case, this webapp is used by an emergency worker: he gives a new message and gets classification results
 in several categories.
@@ -28,9 +38,11 @@ in several categories.
 ### Global overview
 **TODO** + images
 
+As you can see in this picture, some of the **classes are under-represented, data is then imbalanced**.
+
 ### Imbalanced data: drawbacks
-In the given dataset, data is imbalanced. It means that some of the categories appears a lot whereas some others appears
-much less often. This is an issue in Machine Learning because we have too few examples to learn well and if our model
+_"Data is imbalanced"_ means that some of the categories appears a lot whereas some others appears
+much less often. **This is an issue in Machine Learning** because we have too few examples to learn well and if our model
 often see the same value it will obviously 'learn' that and tend to predict this value.  
 **That is why we have to wisely choose the performance metric!**.  
 
@@ -67,8 +79,9 @@ over all categories. How can we evaluate that?
 As explained in this [towardsdatascience post](https://towardsdatascience.com/journey-to-the-center-of-multi-label-classification-384c40229bff)
 we have to average our results made for all categories and for that there are 2 options:
 * the micro-averaging way
-* or the macro-averaging one.
-In this project, we use the micro way as "it is a useful measure when your dataset varies in size" (and remember that our classes/targets are imbalanced).  
+* or the macro-averaging one.  
+
+In this project, we use the micro way as _"it is a useful measure when your dataset varies in size"_ (and remember that our classes/targets are imbalanced).  
 Another interesting source about the difference and what to choose is available [here](https://datascience.stackexchange.com/questions/15989/micro-average-vs-macro-average-performance-in-a-multiclass-classification-settin)
 where it is written that _"In a multi-class classification setup, micro-average is preferable if you suspect there might be class imbalance (i.e you may have many more examples of one class than of other classes)"_.
 
@@ -78,6 +91,7 @@ Here are few interesting readings on towardsdatascience about performance metric
 * [Accuracy, Recall, Precision, F-Score & Specificity, which to optimize on?](https://towardsdatascience.com/accuracy-recall-precision-f-score-specificity-which-to-optimize-on-867d3f11124)
 * [How data scientists can convince doctors that AI works](https://towardsdatascience.com/how-data-scientists-can-convince-doctors-that-ai-works-c27121432ccd)
 * [Multi-class metrics made simple](https://towardsdatascience.com/multi-class-metrics-made-simple-part-ii-the-f1-score-ebe8b2c2ca1)
+* [Journey to the center of multi-label classification](https://towardsdatascience.com/journey-to-the-center-of-multi-label-classification-384c40229bff)
 
 
 #### Ensure that we have enough data to train on
@@ -97,12 +111,14 @@ lead us to a lot of data loss depending on how huge is the gap between classes.
 
 This is algo a good reading about metrics and resampling: [Dealing with Imbalanced Data](https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18)
 
-### Modeling
-We will build a supervised NLP model with multilabel classification (and not multiclass!).
+---
+## 3. MODELING
+### Approach
+We will build a **supervised** NLP model with multilabel **classification** (and not multiclass!).
 What is the difference? Well, "in multi-class problems the classes are mutually exclusive, whereas for multi-label 
 problems each label represents a different classification task" ([source](https://towardsdatascience.com/journey-to-the-center-of-multi-label-classification-384c40229bff)).
 
-#### Models
+### Eligible models
 As it is a supervised classification problem I will take the **Logistic Regression** algorithm as a baseline. If I have 
 enough time to do it,this baseline will be compared to tree based algorithms which are known to handle pretty well 
 imbalanced data (such as _RandomForest_ for example).
@@ -111,46 +127,57 @@ As per scikit-learn documentation, for Logistic Regression: _"In the multiclass 
 one-vs-rest (OvR) scheme". So the Logistic Regression classifier will be wrapped by a [OneVsRestClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) which 
 consists in "fitting one classifier per class. For each classifier, the class is fitted against all the other classes"._
 
-#### Feature Engineering
-For the text transformation, there are easy tricks such as putting everything in lower case, remove digits and stop words, etc. Then we have the [choice between _Stemming_ or _Lemmatization_](https://www.datacamp.com/community/tutorials/stemming-lemmatization-python):  
+### Feature Engineering
+For the text transformation, there are easy tricks such as putting everything in lower case, remove digits and stop words, etc.
+Then we have the [choice between _Stemming_ or _Lemmatization_](https://www.datacamp.com/community/tutorials/stemming-lemmatization-python):  
 * "Stemming and Lemmatization helps us to achieve the root forms (sometimes called synonyms in search context) of inflected (derived) words."
 * "Stemming is different to Lemmatization in the approach it uses to produce root forms of words and the word produced. Stemming a word or sentence may result in words that are not actual words. Stems are created by removing the suffixes or prefixes used with a word."
 "Lemmatization, unlike Stemming, reduces the inflected words properly ensuring that the root word belongs to the language. In Lemmatization root word is called Lemma. A lemma is the canonical form, dictionary form, or citation form of a set of words."
 
 
-***The main transformations that are applied to the text are: TF-IDF vectorization on a lemmatized text.***
+***The main transformations that are applied to the text are: TF-IDF vectorization on a tokenized and lemmatized text.***
 
 For more details, please refer to this [notebook](notebooks/2-ML_pipeline_preparation.ipynb) that offers a walk through this part of the process.
 
-#### F1-Score Results
-First try (arbitrary chosen parameters for TF-IDF vectorization)
-log reg: Precision: 0.6726, Recall: 0.5169, F1-Score: 0.5845
-rf: Precision: 0.7683, Recall: 0.3281, F1-Score: 0.4599
+### F1-Score Results
+| Model                                  | Precision avg micro | Recall avg micro | F1-Score avg micro |
+|----------------------------------------|---------------------|------------------|--------------------|
+| Logistic Regression 1st try            | 0.6726              | 0.5169           | 0.5845             |
+| Logistic Regression with new features  | 0.6857              | 0.5206           | 0.5919             |
+| Logistic Regression with TF-IDF tuning | 0.7359              | 0.5344           | 0.6191             |
+| Random Forest 1st try                  | 0.7683              | 0.3281           | 0.4599             |
+| Random Forest with new features        | 0.7656              | 0.3250           | 0.4563             |
+| Random Forest with TF-IDF tuning       | 0.7640              | 0.3308           | 0.4616             |
 
-With new features but no TF-IDF tuning
-log reg: Precision: 0.6857, Recall: 0.5206, F1-Score: 0.5919
-rf: Precision: 0.7683, Recall: 0.3281, F1-Score: 0.4599
-
-With TF-IDF tuning
-log reg: Precision: 0.7359, Recall: 0.5344, F1-Score: 0.6191
-rf: Precision: 0.7640, Recall: 0.3308, F1-Score: 0.4616
+***Observations:***
+* Since the beginning the **Logistic Regression model gave better result than the Random Forest** (but keep in mind that
+parameters for Random Forest were arbitrary chosen and, obviously, choice was very bad).
+* The several tries to improve results were good with Logistic Regression because in the end **we are 3.5% better on F1-Score with the latest version**.
+Note that this is mainly due to a significant improvement on _Precision_ while _Recall_ increased less.
+* It is important to note that **Random Forest is our best model for the _Precision_ metric** so depending on business choice,
+it could be wise to select and tune this model. As my choice was based on F1-Score I have decided to focus on Logistic Regression.
+* The Random Forest has a lower score because its _Recall_ is very bad and that is why its F1-Score does not increase a lot. 
 
 
 #### Further improvements
 Here are the things that can be done to go further on this project and improve it:
+* Stratify the data (in our case, each class was fortunately represented in both training and testing datasets)
 * Further tuning on ***max_df*** and ***max_features*** parameters of the ***TF-IDF vectorization***
 * Tune RandomForest parameters
 * Add new features based on text extractions
 * Undersampling/Oversampling to have a better management of classes with few samples
 
 ---
-## 3. WEBAPP SCREENSHOTS
+## 4. WEBAPP SCREENSHOTS
 
-**TODO**
+Classification results:  
+![classification results](assets/webapp_classification_result.png)
 
+Some visualizations about the data:  
+![dataset overview](assets/webapp_dataset_overview.png)
 
 ---
-## 4. CONFIGURATION
+## 5. CONFIGURATION
 This project is based on 2 configuration JSON files:
 * config.json
 * logging.json
@@ -162,7 +189,7 @@ for more details about it.
 
 
 ---
-## 5. TECHNICAL PART
+## 6. TECHNICAL PART
 ### Dependencies & Installation - Create your CONDA virtual environment
 Easiest way is to create a virtual environment through **[conda](https://docs.conda.io/en/latest/)**
 and the given `environment.yml` file by running this command in a terminal (if you have conda, obviously):
@@ -204,7 +231,6 @@ Here is the structure of the project:
 ```
 
 ### Run the app on your local computer
-**TODO**
 1. Run the following commands in the project's root directory to set up your database and model.
 
     - To run ETL pipeline that cleans data and stores in database
@@ -215,4 +241,4 @@ Here is the structure of the project:
 2. Run the following command in the project's root directory to run the web app.
     `python src/app.py -c ./config/config.json -l ./config/logging-console.json`
 
-3. Go to http://0.0.0.0:3001/
+3. Go to http://0.0.0.0:3001/ or http://localhost:3001/ with your favorite browser
