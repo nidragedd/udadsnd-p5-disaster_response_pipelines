@@ -1,5 +1,5 @@
 import json
-
+import pandas as pd
 import plotly
 from plotly.graph_objs import Bar
 from flask import render_template, request, jsonify
@@ -23,20 +23,19 @@ def about():
 # Web page that handles user query and displays model results
 @app.route('/go')
 def go():
-    # save user input in query
+    # Get user query
     query = request.args.get('query', '')
 
-    # use model to predict classification for query
-    #classification_labels = model.predict([query])[0]
-    #classification_results = dict(zip(df.columns[4:], classification_labels))
-    classification_results = [1, 2]
+    # Transform the given text into appropriate format to give to model and then use model to apply predict on query
+    x_query = pd.Series([query], name='message')
+    y_pred = dataloader.model.predict(x_query)[0]
+
+    # Build a dictionnary where key is the human readable class name and value a binary 0/1 to specify if it belongs to
+    # this class or not
+    classification_results = dict(zip(dataloader.classes, y_pred))
 
     # This will render the go.html Please see that file.
-    return render_template(
-        'go.html',
-        query=query,
-        classification_result=classification_results
-    )
+    return render_template('go.html', query=query, classification_result=classification_results)
 
 
 # Web page that will display some graphs about the training dataset

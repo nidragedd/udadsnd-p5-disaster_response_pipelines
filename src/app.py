@@ -18,22 +18,7 @@ from src.config import utils
 from src.config.pgconf import ProgramConfiguration
 from src.data import dataloader
 
-# def tokenize(text):
-#     tokens = word_tokenize(text)
-#     lemmatizer = WordNetLemmatizer()
-#
-#     clean_tokens = []
-#     for tok in tokens:
-#         clean_tok = lemmatizer.lemmatize(tok).lower().strip()
-#         clean_tokens.append(clean_tok)
-#
-#     return clean_tokens
-#
-# # load model
-# model = joblib.load("../models/your_model_name.pkl")
-
 logger = logging.getLogger()
-df = None
 
 if __name__ == '__main__':
     # Handle mandatory arguments
@@ -47,6 +32,7 @@ if __name__ == '__main__':
 
     # Load and keep data
     dataloader.df, ok = dataloader.load_data()
+    dataloader.model, dataloader.classes = dataloader.load_model_and_classes()
 
     if ok:
         # Launch the Flask app server

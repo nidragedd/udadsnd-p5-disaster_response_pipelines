@@ -36,10 +36,9 @@
 {% block contentpage %}
     <div class="jumbotron">
         <div class="container">
-            <h1 class="text-center">Disaster Response Help Center</h1>
-            <p class="text-center">Analyzing message data for disaster response</p>
-            <i class="fa fa-fw fa-warning"></i> Be careful, this is not a real app but a student project! (more details in the <a href="/about">About</a> section)
-            <hr />
+            <h2 class="text-center">Disaster Response Help Center: analyzing message data for disaster response</h2>
+            <p class="text-center"><i class="fa fa-fw fa-warning"></i> Be careful, this is not a real app but a student project! (more details in the <a href="/about">About</a> section)</p>
+            <br />
 
             <div class="row">
                 <div class="col-lg-12 form-group-lg">
@@ -53,6 +52,8 @@
             </div>
 
             {% block message %}
+            {% endblock %}
+            {% block content %}
             {% endblock %}
         </div>
     </div>
