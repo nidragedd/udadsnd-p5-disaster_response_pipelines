@@ -3,8 +3,36 @@
 {% block contentpage %}
     <div class="jumbotron">
         <div class="container">
-            <h1 class="text-center">Disaster Response Project</h1>
-            <p class="text-center">lorem ipsum dolor sit amet</p>
+            <h2 class="text-center">Disaster Response Help Center: analyzing message data for disaster response</h2>
+            <p class="text-center"><i class="fa fa-fw fa-warning"></i> Be careful, this is not a real app but a student project!</p>
+            <br />
+            <h3 class="text-left"><u>Context</u></h3>
+            <p class="text-left" style="font-size: 16px">This project is only for educational purposes. I did it while I was following the Udacity `DataScience nanodegree`.
+                Machine learning is critical to helping different organizations understand which messages are relevant to them and which messages to prioritize.
+                During these disasters is when they have the least capacity to filter out messages that matter, and find basic methods
+                such as using key word searches to provide trivial results.</p>
+
+            <h3 class="text-left"><u>Objectives</u></h3>
+            <p class="text-left" style="font-size: 16px">In this project our goal is to analyze thousands of real messages provided by
+                <a href="https://www.figure-eight.com/">Figure 8</a>, sent during natural disasters either via social media
+                or directly to disaster response organizations.</p>
+            <p class="text-left" style="font-size: 16px">We have several steps to follow:</p>
+            <ul>
+                <li>1. <b>Build an ETL pipeline</b> that processes message and category data from csv files and load them into a SQLite database</li>
+                <li>2. <b>Build a Machine Learning pipeline</b> that will then read from SQLite DB to create and save a multi-output supervised
+                    learning model (yes, this is multi-class classification problem). Goal is to categorize these events so that we can send
+                    the messages to an appropriate disaster relief agency.
+                </li>
+                <li>3. <b>Build a webapp</b> (this one) that will:
+                    <ul>
+                        <li>be able to first launch both pipelines in order to populate everything that needs to be</li>
+                        <li>provide some data visualizations (<a href="/stats">here</a>)</li>
+                        <li>use our trained and saved model to classify new messages for 36 categories</li>
+                    </ul>
+                </li>
+            </ul>
+            <p class="text-left">In the given use case, this webapp is used by an emergency worker: he gives a new message
+                and gets classification results in several categories.</p>
         </div>
     </div>
 {% endblock %}

@@ -242,3 +242,6 @@ Here is the structure of the project:
     `python src/app.py -c ./config/config.json -l ./config/logging-console.json`
 
 3. Go to http://0.0.0.0:3001/ or http://localhost:3001/ with your favorite browser
+
+***PAY ATTENTION*** to both mandatory arguments `-c` and `-l` which corresponds respectively to paths (relative or absolute, as you want)
+to both configuration files (the config.json one as explained earlier in this documentation and the logging configuration one)
