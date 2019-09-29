@@ -36,7 +36,15 @@ in several categories.
 ---
 ## 2. ABOUT THE DATA
 ### Global overview
-**TODO** + images
+Raw data is provided in 2 CSV files.  
+`Messages.csv` file looks like:  
+![messages overview](assets/messages_raw_overview.png)
+
+`Categories.csv` file looks like:  
+![categories overview](assets/categories_raw_overview.png)
+
+Number of messages per class:  
+![classification counts overview](assets/data_nb_messages_per_category.png)
 
 As you can see in this picture, some of the **classes are under-represented, data is then imbalanced**.
 
@@ -178,14 +186,12 @@ Some visualizations about the data:
 
 ---
 ## 5. CONFIGURATION
-This project is based on 2 configuration JSON files:
-* config.json
-* logging.json
-
-A default (and working) version of those files are provided under the `config` directory in project's root directory.  
-The `logging.json` file is just an external configuration for logging module parameters(loggers, parsers, file handlers).  
-The `config.json` file is an homemade file where all parameters are provided. Please refer to this [file](config/CONFIG.md)
+This project can be fully configured through 2 external JSON files:
+* `logging.json`: external configuration for logging module parameters(loggers, parsers, appenders, file handlers).
+* `config.json`: homemade file where all parameters are provided. Please refer to this [file](config/CONFIG.md)
 for more details about it.
+
+A default (and working) version of those files is provided under the `config` directory in project's root directory.  
 
 
 ---
@@ -224,10 +230,13 @@ Here is the structure of the project:
       |__ notebooks  (contains all notebooks)
       |__ src       (python modules and scripts)
             |__ config  (scripts called to actually configure the program)
+            |__ data  (scripts called to load cleaned data)
             |__ models  (python scripts used to build, train and save a ML model)
             |__ preprocessing  (python scripts used to preprocess the raw data)
+            |__ static  (HTML static resources to serve through Flask)
             |__ templates  (HTML templates to serve through Flask, this is the 'view' part)
             |__ webapp  (python files corresponding to the webapp: this is the 'controller' part)
+            |__ app.py  (script called to run the Flask server)
 ```
 
 ### Run the app on your local computer
