@@ -1,12 +1,10 @@
 import json
 import pandas as pd
 import plotly
-from plotly.graph_objs import Bar
-from flask import render_template, request, jsonify
+from plotly.graph_objs import Bar, Pie
+from flask import render_template, request
 
 from src import app
-
-# index webpage displays cool visuals and receives user input text for model
 from src.data import dataloader
 
 
@@ -41,54 +39,63 @@ def go():
 # Web page that will display some graphs about the training dataset
 @app.route('/stats')
 def plot():
-    # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
+    # Extract all data needed for graphs
     genre_counts = dataloader.df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
-    # create visuals
-    # TODO: Below is an example - modify to create your own visuals
+    related_genre_counts = dataloader.df[dataloader.df['related'] == 1]['genre'].value_counts()
+    not_related_genre_counts = dataloader.df[dataloader.df['related'] == 0]['genre'].value_counts()
+
+    per_category_counts = dataloader.df.drop(['id', 'message', 'genre'], axis=1).sum()
+    categories = dataloader.df.drop(['id', 'message', 'genre'], axis=1).columns
+
     graphs = [
         {
-            'data': [
-                Bar(
-                    x=genre_names,
-                    y=genre_counts
-                )
-            ],
-
+            'data': [Bar(x=genre_names, y=genre_counts)],
             'layout': {
                 'title': 'Distribution of Message Genres',
-                'yaxis': {
-                    'title': "Count"
-                },
-                'xaxis': {
-                    'title': "Genre"
-                }
+                'yaxis': {'title': "Nb messages"},
+                'xaxis': {'title': "Genre"}
             }
         },
         {
             'data': [
-                Bar(
-                    x=genre_names,
-                    y=genre_counts
-                )
+                Bar(name='related', x=genre_names, y=related_genre_counts),
+                Bar(name='not related', x=genre_names, y=not_related_genre_counts)
             ],
             'layout': {
-                'title': 'Distribution of Message Genres2',
-                'yaxis': {
-                    'title': "Count"
-                },
-                'xaxis': {
-                    'title': "Genre"
-                }
+                'title': 'Genre of messages vs. "Related"',
+                'yaxis': {'title': "Nb messages"},
+                'xaxis': {'title': "Genre"}
+            }
+        },
+        {
+            'data': [
+                Pie(labels=categories, values=per_category_counts)
+            ],
+            'layout': {
+                'title': 'Nb messages per category (in pie chart)',
+                'yaxis': {'title': "Nb messages"},
+                'xaxis': {'title': "Category"}
+            }
+        },
+        {
+            'data': [
+                Bar(x=categories, y=per_category_counts)
+            ],
+            'layout': {
+                'title': 'Nb messages per category',
+                'yaxis': {'title': "Nb messages"},
+                'xaxis': {'title': "Category"}
             }
         }
-    ]
 
-    # encode plotly graphs in JSON
+    ]
+    # Create visuals
+
+    # Encode graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
-    # render web page with plotly graphs
+    # Render template with elements to display graphs
     return render_template('stats.html', ids=ids, graphJSON=graphJSON)

@@ -11,9 +11,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/own-style.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
 </head>
 
 <body>
@@ -58,7 +58,7 @@
         </div>
     </div>
 {% endblock %}
-<footer class="navbar-fixed-bottom" style="background-color:#222; padding:10px;color:#9d9d9d">
+<footer class="navbar-fixed-bottom footer">
   <div class="container">
       <div class="text-center">
           <a href="https://www.udacity.com/">Made with Udacity</a> - <a href="https://github.com/nidragedd"><i class="fa fa-fw fa-github"></i> by nidragedd</a>
