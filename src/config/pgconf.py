@@ -140,7 +140,10 @@ class ProgramConfiguration(object):
 
         # Handling other parameters is different depending on whether we will tune the model or not
         if self.is_model_tuning_active():
-            param_grid['features__text__ngram_range'] = eval(' ,'.join([p for p in tuning_params["ngram_range"]]))
+            if len(tuning_params["ngram_range"]) > 1:
+                param_grid['features__text__ngram_range'] = eval(' ,'.join([p for p in tuning_params["ngram_range"]]))
+            else:
+                param_grid['features__text__ngram_range'] = [eval(' ,'.join([p for p in tuning_params["ngram_range"]]))]
             param_grid['features__text__norm'] = [p for p in tuning_params["norm"] if p != 'None']
             if 'None' in tuning_params["norm"]:
                 param_grid['features__text__norm'].append(None)
